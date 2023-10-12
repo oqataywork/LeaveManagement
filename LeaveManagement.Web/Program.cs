@@ -5,16 +5,21 @@ using AutoMapper;
 using LeaveManagement.Web.Configuration;
 using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Repositories;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionStringBuilder = new SqlConnectionStringBuilder (builder.Configuration.GetConnectionString("DefaultConnection"));
+connectionStringBuilder.Password = builder.Configuration["DbPassword"];
+var connectionString = connectionStringBuilder.ToString ();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

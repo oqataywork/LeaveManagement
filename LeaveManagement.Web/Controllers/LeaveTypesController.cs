@@ -4,9 +4,11 @@ using LeaveManagement.Web.Data;
 using AutoMapper;
 using LeaveManagement.Web.Models;
 using LeaveManagement.Web.Contracts;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LeaveManagement.Web.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class LeaveTypesController : Controller
     {
         private readonly ILeaveTypeRepository leaveTypeRepository;
@@ -44,10 +46,14 @@ namespace LeaveManagement.Web.Controllers
         }
 
         // GET: LeaveTypes/Create
+        
         public IActionResult Create()
         {
             return View();
         }
+
+
+       
 
         // POST: LeaveTypes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -58,7 +64,11 @@ namespace LeaveManagement.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                // конвертировали из того, что вписал пользователь(клиент) и превратили это в системный объект
                 var leaveType = mapper.Map<LeaveType>(leaveTypeVM);
+
+                //отправка запроса в базу данных
                 await leaveTypeRepository.AddAsync(leaveType);
                 return RedirectToAction(nameof(Index));
             }
